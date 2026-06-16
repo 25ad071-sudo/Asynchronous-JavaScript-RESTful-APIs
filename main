@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Weather Dashboard</h1>
+
+        <div class="search-box">
+            <input
+                type="text"
+                id="cityInput"
+                placeholder="Enter city name..."
+            >
+            <button id="searchBtn">Search</button>
+        </div>
+
+        <div id="loading" class="hidden">
+            Loading weather data...
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <div id="weatherCard" class="weather-card hidden">
+            <h2 id="cityName"></h2>
+
+            <div class="weather-info">
+                <p> Temperature: <span id="temp"></span>°C</p>
+                <p> Humidity: <span id="humidity"></span>%</p>
+                <p> Wind Speed: <span id="wind"></span> m/s</p>
+                <p> Condition: <span id="condition"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+CSS
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #74ebd5, #9face6);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    background: #4e73df;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2e59d9;
+}
+
+.weather-card {
+    margin-top: 20px;
+}
+
+.weather-info p {
+    margin: 10px 0;
+}
+
+.error {
+    margin-top: 15px;
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
+JavaScript (Async/Await + Fetch API)
+const apiKey = "YOUR_API_KEY";
+
+const cityInput = document.getElementById("cityInput");
+const searchBtn = document.getElementById("searchBtn");
+
+const loading = document.getElementById("loading");
+const errorBox = document.getElementById("error");
+const weatherCard = document.getElementById("weatherCard");
+
+const cityName = document.getElementById("cityName");
+const temp = document.getElementById("temp");
+const humidity = document.getElementById("humidity");
+const wind = document.getElementById("wind");
+const condition = document.getElementById("condition");
+
+async function getWeather(city) {
+
+    loading.classList.remove("hidden");
+    errorBox.classList.add("hidden");
+    weatherCard.classList.add("hidden");
+
+    try {
+
+        const url =
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("City not found");
+        }
+
+        const data = await response.json();
+
+        /*
+        Example JSON Structure:
+
+        {
+          "name": "London",
+          "main": {
+             "temp": 22,
+             "humidity": 65
+          },
+          "wind": {
+             "speed": 4.5
+          },
+          "weather": [
+             {
+               "description": "clear sky"
+             }
+          ]
+        }
+        */
+
+        cityName.textContent = data.name;
+        temp.textContent = data.main.temp;
+        humidity.textContent = data.main.humidity;
+        wind.textContent = data.wind.speed;
+        condition.textContent = data.weather[0].description;
+
+        weatherCard.classList.remove("hidden");
+
+    } catch (error) {
+
+        errorBox.textContent =
+            "Unable to fetch weather data. Please check the city name.";
+
+        errorBox.classList.remove("hidden");
+
+        console.error(error);
+
+    } finally {
+
+        loading.classList.add("hidden");
+    }
+}
+
+searchBtn.addEventListener("click", () => {
+    const city = cityInput.value.trim();
+
+    if (city) {
+        getWeather(city);
+    }
+});
+
+cityInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        searchBtn.click();
+    }
+});
+How the JSON Data Is Processed
+The API returns nested JSON like:
+{
+  "name": "Paris",
+  "main": {
+    "temp": 18.7,
+    "humidity": 55
+  },
+  "wind": {
+    "speed": 3.6
+  },
+  "weather": [
+    {
+      "description": "few clouds"
+    }
+  ]
+}
+Accessing nested values:
+data.main.temp
+data.main.humidity
+data.wind.speed
+data.weather[0].description
+Key Asynchronous Concepts Used
+Async Function
+async function getWeather(city) {
+}
+Await API Response
+const response = await fetch(url);
+Await JSON Parsing
+const data = await response.json();
+Error Handling
+try {
+   ...
+} catch(error) {
+   ...
+} finally {
+   ...
+}
+
+
+
+
